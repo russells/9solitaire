@@ -90,7 +90,3 @@ class Pack:
 if __name__ == '__main__':
     pack = Pack()
     pack.shuffle()
-    pack2 = Pack()
-    for i in xrange(52):
-        if pack.cards[i] == pack2.cards[i]:
-            print "equal", i, pack.cards[i]
