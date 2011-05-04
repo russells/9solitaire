@@ -9,7 +9,9 @@ class Card:
         self.number = number
         self.suit = suit
     def __str__(self):
-        if self.number == 11:
+        if self.number == 10:
+            s = 'X'
+        elif self.number == 11:
             s = 'J'
         elif self.number == 12:
             s = 'Q'
