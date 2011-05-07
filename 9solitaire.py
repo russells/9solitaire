@@ -167,9 +167,9 @@ class Stacks:
         s = []
         for stack in self._stacks:
             if len(stack):
-                s.append(str(stack.top()))
+                s.append('%s(%02d)' % (str(stack.top()), len(stack)))
             else:
-                s.append('__')
+                s.append('__(--)')
         return ' '.join(s)
 
     def find(self, card):
