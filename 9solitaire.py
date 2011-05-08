@@ -24,7 +24,7 @@ class Card:
 
     def matchingcard(self, card):
         if card.face() not in self.matchlist:
-            print "card.face() == ",card.face()
+            #print "card.face() == ",card.face()
             raise ValueError()
         return self.matchlist[10 - self.number]
 
@@ -190,65 +190,58 @@ class Stacks:
     def __index__(self, i):
         return self._stacks[i].top()
 
+def play1jqk(pack, stacks):
+    '''Cover up a J, Q, K triplet if it exists.'''
+    try:
+        j = stacks.find('J')
+        q = stacks.find('Q')
+        k = stacks.find('K')
+        if len(pack) < 3:
+            print "I need 3 cards to cover %s, %s, %s, but there are only %d cards" % \
+                (str(stacks[j].top()),str(stacks[q].top()),
+                 str(stacks[k].top()),len(pack))
+            return 0
+        stacks.put(j, pack.get())
+        stacks.put(q, pack.get())
+        stacks.put(k, pack.get())
+        return 3
+    except ValueError:
+        return 0
 
-def play1(pack, stacks):
+
+def play1(pack, stacks, do_jqk=True):
     '''Cover up one matching set.
 
-    Return true if it was possible to cover a set, false if not.'''
+    Return the number of cards covered.  This will be two or three.  It will
+    only be three when we cover a J, Q, K triplet.'''
 
     #print "--- play1()"
+
+    # Prefer the JQK triplets so we get them out of the way.
+    if do_jqk and play1jqk(pack, stacks) == 3:
+        return 3
 
     for i in xrange(8):
         #print "  play1() loop %d" % i
         card = stacks[i].top()
         #print "  Testing %s" % str(card)
-        if card == 'J':
-            try:
-                q = stacks.find('Q')
-                k = stacks.find('K')
-                stacks.put(i, pack.get())
-                stacks.put(q, pack.get())
-                stacks.put(k, pack.get())
-                #print "  Matched a J"
-                return True
-            except ValueError:
-                pass
-        elif card == 'Q':
-            try:
-                j = stacks.find('J')
-                k = stacks.find('K')
-                stacks.put(j, pack.get())
-                stacks.put(i, pack.get())
-                stacks.put(k, pack.get())
-                #print "  Matched a Q"
-                return True
-            except ValueError:
-                pass
-        elif card == 'K':
-            try:
-                j = stacks.find('J')
-                q = stacks.find('Q')
-                stacks.put(j, pack.get())
-                stacks.put(q, pack.get())
-                stacks.put(i, pack.get())
-                #print "  Matched a K"
-                return True
-            except ValueError:
-                pass
-        else:
+        #print "  card %s match %s" % (str(card),str(matchingcard))
+        try:
             matchingcard = card.matchingcard(card)
-            #print "  card %s match %s" % (str(card),str(matchingcard))
-            try:
-                m = stacks.find(matchingcard)
-                stacks.put(i, pack.get())
-                stacks.put(m, pack.get())
-                #print "  Matched a card"
-                return True
-            except ValueError:
-                pass
+            m = stacks.find(matchingcard)
+            if len(pack) < 2:
+                print "I need 2 cards to cover %s and %s, but there are only %d cards" % \
+                    (str(card), str(stacks[m].top()), len(pack))
+                return 0
+            stacks.put(i, pack.get())
+            stacks.put(m, pack.get())
+            #print "  Matched %s" % str(card)
+            return 2
+        except ValueError:
+            pass
         #print "  Not matched"
-    #print "play1() returns False"
-    return False
+    #print "play1() returns 0"
+    return 0
 
 
 def deal(pack, stacks):
@@ -259,14 +252,32 @@ def deal(pack, stacks):
 
 
 if __name__ == '__main__':
+
     pack = Pack()
     pack.shuffle()
+    print pack
+
     stacks = Stacks()
 
     deal(pack, stacks)
 
+    # Count the number of JQK triplets covered.  We only want to cover three of
+    # these, since we'll run out of cards if we cover all four sets.
+    jqk_covered = 0
     while len(pack):
         #print pack
         print stacks
-        if not play1(pack, stacks):
+        covered = play1(pack, stacks, jqk_covered < 3)
+        if not covered:
             break
+        if covered == 3:
+            # play1() returns 3 only when a JQK triplet was covered.
+            jqk_covered += 1
+    if not len(pack):
+        assert len(pack) == 0
+        stacktotal = 0
+        for i in xrange(9):
+            stacktotal += len(stacks[i])
+        assert stacktotal == 52
+        print stacks
+        print "Finished!"
