@@ -2,6 +2,7 @@
 
 
 from random import randint
+import re
 
 
 class Card:
@@ -12,9 +13,18 @@ class Card:
     matchlist = 'A23456789X'
 
     def __init__(self, number, suit):
-        if number < 1 or number > 13:
-            raise IndexError()
-        self.number = number
+        if isinstance(number, int):
+            if (number < 1 or number > 13):
+                raise IndexError('Card value must be 1 to 13, or one of "A23456789XJQK"')
+            self.number = number
+        elif isinstance(number, str):
+            if len(number) > 1:
+                raise ValueError()
+            if number not in self.faces or self.faces.index(number)==0:
+                raise IndexError('Card value must be 1 to 13, or one of "A23456789XJQK"')
+            self.number = self.faces.index(number)
+        else:
+            raise IndexError('Card value must be 1 to 13, or one of "A23456789XJQK"')
         if len(suit) > 1 or suit not in 'CDHS':
             raise IndexError()
         self.suit = suit
@@ -64,7 +74,13 @@ Spades   = 'S'
 
 
 class Pack:
-    def __init__(self):
+    def __init__(self, packstring=None):
+        if packstring is None:
+            self.makedefaultpack()
+        else:
+            self.makepackfromstring(packstring)
+
+    def makedefaultpack(self):
         self._cards = [
             Card(  1, Clubs    ), Card(  2, Clubs    ), Card(  3, Clubs    ),
             Card(  4, Clubs    ), Card(  5, Clubs    ), Card(  6, Clubs    ),
@@ -87,6 +103,32 @@ class Pack:
             Card( 10, Spades   ), Card( 11, Spades   ), Card( 12, Spades   ),
             Card( 13, Spades   ),
             ]
+
+
+    packstringre = '''<*'''
+    for i in xrange(52):
+        packstringre += '''\s*([A23456789XJQK][CDHS])'''
+    packstringre += '''\s*>*'''
+
+    def makepackfromstring(self, packstring):
+        '''Fill in the pack of cards from a string.
+
+        The strings names each of the cards in order starting at the top of the
+        pack (first card to be dealt.)  The cards are optionally separated by
+        white space, and the whole list is optionally surrounded in < >
+        characters.
+        '''
+        self._cards = []
+
+        mo = re.match(self.packstringre, packstring, re.I)
+        if mo is None:
+            print packstring
+            print self.packstringre
+            raise ValueError('No match for Pack regex')
+        for i in xrange(1,53):
+            s = mo.group(i)
+            self._cards.append(Card(s[0], s[1]))
+
 
     def checklen(self):
         if len(self._cards) != 52:
@@ -253,7 +295,10 @@ def deal(pack, stacks):
 
 if __name__ == '__main__':
 
-    pack = Pack()
+    pack = Pack('''<<<
+ 5C KD 3H QS 3D 5S 2H 9H XH JC 5D 9D 8S 6D 6S JD 4H XC 7S AD 8H 9S 2D XD 7C KC
+ AS KH QD 4S 6H 5H QC 3C 8C XS 2C 7D AC 3S 7H 2S JH KS 9C 8D AH 6C 4C 4D JS QH
+>>>''')
     pack.shuffle()
     print pack
 
