@@ -49,7 +49,7 @@ static struct Pack *make_pack(int initpack, int includejokers)
 		int facecounter;
 		int suitcounter;
 		struct Card card;
-		for (suitcounter=0; suitcounter<13; suitcounter++) {
+		for (suitcounter=0; suitcounter<4; suitcounter++) {
 			for (facecounter=0; facecounter<13; facecounter++) {
 				card.face = faces[facecounter];
 				card.suit = suits[suitcounter];
@@ -145,12 +145,37 @@ void pack_put_top(struct Pack *pack, struct Card card)
 
 void pack_put_bottom(struct Pack *pack, struct Card card)
 {
+	fprintf(stderr, "pack->size == %d pack_size(pack)==%d\n", pack->size, pack_size(pack));
 	assert( pack_size(pack) < pack->size-1 );
 	pack->cards[pack->bottom] = card;
 	pack->bottom++;
 	if (pack->bottom >= pack->size) {
 		pack->bottom = 0;
 	}
+}
+
+
+void pack_print(struct Pack *pack, FILE *file)
+{
+	int i;
+
+	if (file == NULL) {
+		file = stdout;
+	}
+
+	fprintf(file, "<<");
+	for (i=pack->top; i != pack->bottom; i++) {
+		if (i >= pack->size) {
+			i = 0;
+		}
+		struct Card card = pack->cards[i];
+		if (i == pack->top) {
+			fprintf(file, "%c%c", card.face, card.suit);
+		} else {
+			fprintf(file, " %c%c", card.face, card.suit);
+		}
+	}
+	fprintf(file, ">>");
 }
 
 
@@ -162,6 +187,8 @@ int main(int argc, char **argv)
 	srandom((unsigned int)(time(0))); /* This doesn't have to be
 					     cryptographically strong. */
 	pack = make_pack(TRUE, FALSE);
+	pack_print(pack, 0);
+	printf("\n");
 	stacks = make_stacks();
 	return 0;
 }
