@@ -3,6 +3,7 @@
 
 from random import randint
 import re
+import sys
 
 
 class Card:
@@ -293,22 +294,12 @@ def deal(pack, stacks):
     assert len(pack) == 43
 
 
-if __name__ == '__main__':
+def play(pack, stacks):
+    ''' Play one complete game.'''
 
-    pack = Pack('''<<<
- 5C KD 3H QS 3D 5S 2H 9H XH JC 5D 9D 8S 6D 6S JD 4H XC 7S AD 8H 9S 2D XD 7C KC
- AS KH QD 4S 6H 5H QC 3C 8C XS 2C 7D AC 3S 7H 2S JH KS 9C 8D AH 6C 4C 4D JS QH
->>>''')
-    pack.shuffle()
-    print pack
-
-    stacks = Stacks()
-
-    deal(pack, stacks)
-
-    # Count the number of JQK triplets covered.  We only want to cover three of
-    # these, since we'll run out of cards if we cover all four sets.
-    jqk_covered = 0
+    jqk_covered = 0 # Count the number of JQK triplets covered.  We only want
+                    # to cover three of these, since we'll run out of cards if
+                    # we cover all four sets.
     while len(pack):
         #print pack
         print stacks
@@ -318,11 +309,41 @@ if __name__ == '__main__':
         if covered == 3:
             # play1() returns 3 only when a JQK triplet was covered.
             jqk_covered += 1
-    if not len(pack):
-        assert len(pack) == 0
-        stacktotal = 0
-        for i in xrange(9):
-            stacktotal += len(stacks[i])
-        assert stacktotal == 52
-        print stacks
-        print "Finished!"
+
+
+def usage():
+    print >>sys.stderr, "Usage: %s [ngames]" % sys.argv[0]
+    sys.exit(1)
+
+
+if __name__ == '__main__':
+
+    if len(sys.argv) == 1:
+        ngames = 1
+    elif len(sys.argv) == 2:
+        ngames = int(sys.argv[1])
+    else:
+        usage()
+
+    for i in xrange(ngames):
+        pack = Pack('''<<<
+ 5C KD 3H QS 3D 5S 2H 9H XH JC 5D 9D 8S 6D 6S JD 4H XC 7S AD 8H 9S 2D XD 7C KC
+ AS KH QD 4S 6H 5H QC 3C 8C XS 2C 7D AC 3S 7H 2S JH KS 9C 8D AH 6C 4C 4D JS QH
+>>>''')
+
+        pack.shuffle()
+        print pack
+
+        stacks = Stacks()
+
+        deal(pack, stacks)
+        play(pack, stacks)
+
+        if not len(pack):
+            assert len(pack) == 0
+            stacktotal = 0
+            for i in xrange(9):
+                stacktotal += len(stacks[i])
+            assert stacktotal == 52
+            print stacks
+            print "Finished!"
