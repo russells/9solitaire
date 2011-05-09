@@ -44,3 +44,8 @@ struct Stacks {
 	struct Stack stacks[9];
 };
 
+
+int main(int argc, char **argv)
+{
+	return 0;
+}
