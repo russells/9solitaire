@@ -63,7 +63,7 @@ class Card:
         if isinstance(card2, Card):
             # For this game, we only care about the face value, not the suit.
             return self.number == card2.number #and self.suit == card2.suit
-        elif isinstance(card2, ''.__class__):
+        elif isinstance(card2, str):
             return card2[0] == self.faces[self.number]
         else:
             return False
@@ -272,6 +272,8 @@ def play1(pack, stacks, do_jqk=True):
     for i in xrange(8):
         #print "  play1() loop %d" % i
         card = stacks[i].top()
+        if card not in [ 'A', '2', '3', '4', '5' ]:
+            continue
         #print "  Testing %s" % str(card)
         #print "  card %s match %s" % (str(card),str(matchingcard))
         try:
