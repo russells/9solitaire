@@ -4,6 +4,7 @@
 from random import randint
 import re
 import sys
+from math import log10
 
 
 class Card:
@@ -322,8 +323,14 @@ if __name__ == '__main__':
         ngames = 1
     elif len(sys.argv) == 2:
         ngames = int(sys.argv[1])
+        if ngames <= 0:
+            usage()
     else:
         usage()
+
+    # Calculate a length that will fit in all the printed game numbers.
+    gameindexlength = 1 + int(log10(ngames))
+    gameindexformat = "%%%dd" % gameindexlength
 
     for i in xrange(ngames):
         pack = Pack('''<<<
@@ -342,8 +349,16 @@ if __name__ == '__main__':
         if not len(pack):
             assert len(pack) == 0
             stacktotal = 0
-            for i in xrange(9):
-                stacktotal += len(stacks[i])
+            for stacknum in xrange(9):
+                stacktotal += len(stacks[stacknum])
             assert stacktotal == 52
             print stacks
-            print "Finished!"
+            if ngames > 1:
+                print ("End "+gameindexformat+" -- Finished!") % i
+            else:
+                print "End -- Finished!"
+        else:
+            if ngames > 1:
+                print ("End "+gameindexformat+" --") % i
+            else:
+                print "End --"
