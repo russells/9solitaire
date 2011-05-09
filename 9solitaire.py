@@ -153,7 +153,7 @@ class Pack:
         return card
 
     def put(self, c):
-        if type(c) == ListType or type(c) == TupleType:
+        if type(c) == list or type(c) == tuple:
             self._cards.extend(c)
         else:
             self._cards.append(c)
@@ -181,6 +181,10 @@ class Stack:
         self._cards.insert(0, card)
     def top(self):
         return self._cards[0]
+    def getBottom(self):
+        c = self._cards[-1]
+        del self._cards[-1]
+        return c
     def cards(self):
         return self._cards
     def __eq__(self, card):
@@ -312,6 +316,19 @@ def play(pack, stacks):
             jqk_covered += 1
 
 
+def stacksOnPack(pack, stacks):
+    '''Put each of the stacks back on the bottom of the pack.
+
+    We get each stack in reverse order, because that is the way that the game
+    is often played manually, by picking up each stack beginning from the
+    bottom right.  The bottom right stack was the last one dealt.
+    '''
+    for n in xrange(8, -1, -1):
+        stack = stacks[n]
+        while len(stack):
+            pack.put(stack.getBottom())
+
+
 def usage():
     print >>sys.stderr, "Usage: %s [ngames]" % sys.argv[0]
     sys.exit(1)
@@ -332,17 +349,16 @@ if __name__ == '__main__':
     gameindexlength = 1 + int(log10(ngames))
     gameindexformat = "%%%dd" % gameindexlength
 
-    for i in xrange(ngames):
-        pack = Pack('''<<<
+    pack = Pack('''<<<
  5C KD 3H QS 3D 5S 2H 9H XH JC 5D 9D 8S 6D 6S JD 4H XC 7S AD 8H 9S 2D XD 7C KC
  AS KH QD 4S 6H 5H QC 3C 8C XS 2C 7D AC 3S 7H 2S JH KS 9C 8D AH 6C 4C 4D JS QH
 >>>''')
+    pack.shuffle()
+    stacks = Stacks()
 
-        pack.shuffle()
+    for i in xrange(ngames):
+
         print pack
-
-        stacks = Stacks()
-
         deal(pack, stacks)
         play(pack, stacks)
 
@@ -362,3 +378,4 @@ if __name__ == '__main__':
                 print ("End "+gameindexformat+" --") % i
             else:
                 print "End --"
+        stacksOnPack(pack, stacks)
