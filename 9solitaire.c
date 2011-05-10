@@ -145,7 +145,6 @@ void pack_put_top(struct Pack *pack, struct Card card)
 
 void pack_put_bottom(struct Pack *pack, struct Card card)
 {
-	fprintf(stderr, "pack->size == %d pack_size(pack)==%d\n", pack->size, pack_size(pack));
 	assert( pack_size(pack) < pack->size-1 );
 	pack->cards[pack->bottom] = card;
 	pack->bottom++;
@@ -179,6 +178,64 @@ void pack_print(struct Pack *pack, FILE *file)
 }
 
 
+/**
+ * Get a copy of the nth card in the pack, for shuffling.
+ */
+static struct Card copy_nth_card(struct Pack *pack, int n)
+{
+	assert( n < pack_size(pack) );
+	n += pack->top;
+	if (n >= pack->size) {
+		n -= pack->size;
+	}
+	return pack->cards[n];
+}
+
+
+/**
+ * Replace (overwrite) the nth card in the pack, for shuffling.
+ */
+static void replace_nth_card(struct Pack *pack, int n, struct Card card)
+{
+	assert( n < pack_size(pack) );
+	n += pack->top;
+	if (n >= pack->size) {
+		n -= pack->size;
+	}
+	pack->cards[n] = card;
+}
+
+
+/**
+ * Shuffle a pack.
+ *
+ * We currently shuffle the pack by randomly swapping cards enough times to be
+ * reasonabely sure we've touched almost all of them - four times the pack
+ * size.  This does not really simulate a human shuffle very well.
+ *
+ * @todo Make shuffling more human like.
+ */
+void pack_shuffle(struct Pack *pack)
+{
+	int i;
+	int index1;
+	int index2;
+	struct Card card1;
+	struct Card card2;
+
+	int packsize = pack_size(pack);
+
+	for (i=0; i<4*packsize; i++) {
+		index1 = ((int)(random())) % packsize;
+		index2 = ((int)(random())) % packsize;
+		card1 = copy_nth_card(pack, index1);
+		card2 = copy_nth_card(pack, index2);
+		replace_nth_card(pack, index1, card2);
+		replace_nth_card(pack, index2, card1);
+	}
+}
+
+
 int main(int argc, char **argv)
 {
 	struct Pack *pack;
@@ -187,6 +244,9 @@ int main(int argc, char **argv)
 	srandom((unsigned int)(time(0))); /* This doesn't have to be
 					     cryptographically strong. */
 	pack = make_pack(TRUE, FALSE);
+	pack_print(pack, 0);
+	printf("\n");
+	pack_shuffle(pack);
 	pack_print(pack, 0);
 	printf("\n");
 	stacks = make_stacks();

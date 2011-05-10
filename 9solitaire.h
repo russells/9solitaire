@@ -65,3 +65,4 @@ struct Card pack_get_top(struct Pack *pack);
 struct Card pack_get_bottom(struct Pack *pack);
 void pack_put_top(struct Pack *pack, struct Card card);
 void pack_put_bottom(struct Pack *pack, struct Card card);
+void pack_shuffle(struct Pack *pack);
