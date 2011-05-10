@@ -1,4 +1,6 @@
 
+#include <stdio.h>
+
 /**
  * Represent a single card, with face value and suit.
  *
@@ -33,7 +35,10 @@ struct Card {
  * to take a card off the top.
  */
 struct Pack {
-	/** The maximum size of the pack. */
+	/** The maximum size of the pack.  This the maximum number of cards
+	    that the pack can contain, distinct from the number of cards
+	    currently on the pack, which is obtained by comparing top and
+	    bottom. */
 	int size;
 	/** The index of the top card of the pack. */
 	int top;
@@ -66,3 +71,7 @@ struct Card pack_get_bottom(struct Pack *pack);
 void pack_put_top(struct Pack *pack, struct Card card);
 void pack_put_bottom(struct Pack *pack, struct Card card);
 void pack_shuffle(struct Pack *pack);
+
+void stack_print(struct Stack *stack, FILE *file);
+void stacks_print(struct Stacks *stacks, FILE *file);
+

@@ -178,6 +178,40 @@ void pack_print(struct Pack *pack, FILE *file)
 }
 
 
+void stacks_print(struct Stacks *stacks, FILE *file)
+{
+	int i;
+
+	if (file == 0) {
+		file = stdout;
+	}
+	for (i=0; i<9; i++) {
+		struct Stack *stack = stacks->stacks[i];
+		if (i != 0) {
+			fprintf(file, " ");
+		}
+		stack_print(stack, file);
+	}
+}
+
+
+void stack_print(struct Stack *stack, FILE *file)
+{
+	struct Card topcard;
+
+	if (file == 0) {
+		file = stdout;
+	}
+	if (stack->size) {
+		topcard = stack->cards[stack->size-1];
+	} else {
+		topcard.face = '-';
+		topcard.suit = '-';
+	}
+	fprintf(file, "%c%c(%02d)", topcard.face, topcard.suit, stack->size);
+}
+
+
 /**
  * Get a copy of the nth card in the pack, for shuffling.
  */
@@ -250,5 +284,7 @@ int main(int argc, char **argv)
 	pack_print(pack, 0);
 	printf("\n");
 	stacks = make_stacks();
+	stacks_print(stacks, stdout);
+	printf("\n");
 	return 0;
 }
