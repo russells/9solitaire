@@ -293,6 +293,24 @@ void deal(struct Pack *pack, struct Stacks *stacks)
 }
 
 
+struct Card stack_copy_top(struct Stack *stack)
+{
+	assert( stack->size > 0 );
+	return stack->cards[stack->size-1];
+}
+
+
+struct Card stack_get_top(struct Stack *stack)
+{
+	struct Card card;
+
+	assert( stack->size > 0 );
+	card = stack->cards[stack->size-1];
+	stack->size --;
+	return card;
+}
+
+
 /**
  * Find the first stack that matches a given card face.
  *
@@ -316,9 +334,69 @@ int find_first_card_face_on_stacks(struct Stacks *stacks, char face)
 }
 
 
+int play1_jqk(struct Pack *pack, struct Stacks *stacks)
+{
+	int j, q, k;
+
+	j = find_first_card_face_on_stacks(stacks, 'J');
+	if (-1 == j) {
+		return 0;
+	}
+	q = find_first_card_face_on_stacks(stacks, 'Q');
+	if (-1 == q) {
+		return 0;
+	}
+	k = find_first_card_face_on_stacks(stacks, 'K');
+	if (-1 == k) {
+		return 0;
+	}
+	if (pack_size(pack) < 3) {
+		struct Card jcard = stack_copy_top(stacks->stacks[j]);
+		struct Card qcard = stack_copy_top(stacks->stacks[q]);
+		struct Card kcard = stack_copy_top(stacks->stacks[k]);
+		fprintf(stderr,
+			"I need 3 cards to cover %c%c, %c%c, %c%c, "
+			"but there are only %d\n",
+			jcard.face, jcard.suit,
+			qcard.face, qcard.suit,
+			kcard.face, kcard.suit,
+			pack_size(pack));
+		return 0;
+	}
+	stack_put(stacks->stacks[j], pack_get_top(pack));
+	stack_put(stacks->stacks[q], pack_get_top(pack));
+	stack_put(stacks->stacks[k], pack_get_top(pack));
+	return 3;
+}
+
+
+int play1(struct Pack *pack, struct Stacks *stacks)
+{
+	int jqk;
+
+	jqk = play1_jqk(pack, stacks);
+	if (3 == jqk) {
+		return 3;
+	}
+	return 0;
+}
+
+
 void play(struct Pack *pack, struct Stacks *stacks)
 {
+	int covered;
+	int jqk_covered = 0;
+
 	deal(pack, stacks);
+	while (1) {
+		covered = play1(pack, stacks);
+		if (! covered) {
+			break;
+		}
+		if (3 == covered) {
+			jqk_covered ++;
+		}
+	}
 }
 
 

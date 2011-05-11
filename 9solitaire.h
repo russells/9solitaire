@@ -76,3 +76,6 @@ void pack_shuffle(struct Pack *pack);
 void stack_print(struct Stack *stack, FILE *file);
 void stacks_print(struct Stacks *stacks, FILE *file);
 
+void stack_put(struct Stack *stack, struct Card card);
+struct Card stack_get_top(struct Stack *stack);
+struct Card stack_copy_top(struct Stack *stack);
