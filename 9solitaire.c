@@ -370,14 +370,58 @@ int play1_jqk(struct Pack *pack, struct Stacks *stacks)
 }
 
 
+static char matchcardfaces[][2] = {
+	{ 'A', 'X' },
+	{ '2', '9' },
+	{ '3', '8' },
+	{ '4', '7' },
+	{ '5', '6' },
+	{ 0, 0}
+};
+
+
+
 int play1(struct Pack *pack, struct Stacks *stacks)
 {
 	int jqk;
+	int i;
+	char cardface1, cardface2;
+	int index1, index2;
 
 	jqk = play1_jqk(pack, stacks);
 	if (3 == jqk) {
 		return 3;
 	}
+	i = 0;
+	for (i=0; matchcardfaces[i][0]; i++) {
+		cardface1 = matchcardfaces[i][0];
+		index1 = find_first_card_face_on_stacks(stacks, cardface1);
+		if (-1 == index1) {
+			continue;
+		}
+		cardface2 = matchcardfaces[i][1];
+		index2 = find_first_card_face_on_stacks(stacks, cardface2);
+		if (-1 == index2) {
+			continue;
+		}
+		if (pack_size(pack) < 2) {
+			struct Card card1;
+			struct Card card2;
+			card1 = stack_copy_top(stacks->stacks[index1]);
+			card2 = stack_copy_top(stacks->stacks[index2]);
+			fprintf(stderr,
+				"I need 2 cards to cover %c%c, %c%c, "
+				"but there are only %d\n",
+				card1.face, card1.suit,
+				card2.face, card2.suit,
+				pack_size(pack));
+			return 0;
+		}
+		stack_put(stacks->stacks[index1], pack_get_top(pack));
+		stack_put(stacks->stacks[index2], pack_get_top(pack));
+		return 2;
+	}
+
 	return 0;
 }
 
@@ -389,12 +433,17 @@ void play(struct Pack *pack, struct Stacks *stacks)
 
 	deal(pack, stacks);
 	while (1) {
+		stacks_print(stacks, 0);
+		printf("\n");
 		covered = play1(pack, stacks);
 		if (! covered) {
 			break;
 		}
 		if (3 == covered) {
 			jqk_covered ++;
+		}
+		if (pack_size(pack) == 0) {
+			return;
 		}
 	}
 }
@@ -420,7 +469,8 @@ int main(int argc, char **argv)
 	play(pack, stacks);
 	pack_print(pack, 0);
 	printf("\n");
-	stacks_print(stacks, stdout);
-	printf("\n");
+	if (pack_size(pack) == 0) {
+		printf("Finished\n");
+	}
 	return 0;
 }
