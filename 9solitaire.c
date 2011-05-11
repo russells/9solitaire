@@ -212,6 +212,12 @@ void stack_print(struct Stack *stack, FILE *file)
 }
 
 
+void stack_put(struct Stack *stack, struct Card card)
+{
+	stack->cards[stack->size++] = card;
+}
+
+
 /**
  * Get a copy of the nth card in the pack, for shuffling.
  */
@@ -270,6 +276,27 @@ void pack_shuffle(struct Pack *pack)
 }
 
 
+void deal(struct Pack *pack, struct Stacks *stacks)
+{
+	int i;
+	struct Stack *stack;
+	struct Card card;
+
+	for (i=0; i<9; i++) {
+		stack = stacks->stacks[i];
+		card = pack_get_top(pack);
+		stack_put(stack, card);
+	}
+	assert( pack_size(pack) == 43 );
+}
+
+
+void play(struct Pack *pack, struct Stacks *stacks)
+{
+
+}
+
+
 int main(int argc, char **argv)
 {
 	struct Pack *pack;
@@ -284,6 +311,12 @@ int main(int argc, char **argv)
 	pack_print(pack, 0);
 	printf("\n");
 	stacks = make_stacks();
+	stacks_print(stacks, stdout);
+	printf("\n");
+	printf("dealing\n");
+	deal(pack, stacks);
+	pack_print(pack, 0);
+	printf("\n");
 	stacks_print(stacks, stdout);
 	printf("\n");
 	return 0;
