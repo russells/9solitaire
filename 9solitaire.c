@@ -293,9 +293,32 @@ void deal(struct Pack *pack, struct Stacks *stacks)
 }
 
 
+/**
+ * Find the first stack that matches a given card face.
+ *
+ * @return index of the first matching stack, or -1 if no stack has a matching
+ * card.
+ */
+int find_first_card_face_on_stacks(struct Stacks *stacks, char face)
+{
+	int i;
+	struct Stack *stack;
+	struct Card card;
+
+	for (i=0; i<9; i++) {
+		stack = stacks->stacks[i];
+		card = stack->cards[stack->size-1];
+		if (card.face == face) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+
 void play(struct Pack *pack, struct Stacks *stacks)
 {
-
+	deal(pack, stacks);
 }
 
 
@@ -316,7 +339,7 @@ int main(int argc, char **argv)
 	stacks_print(stacks, stdout);
 	printf("\n");
 	printf("dealing\n");
-	deal(pack, stacks);
+	play(pack, stacks);
 	pack_print(pack, 0);
 	printf("\n");
 	stacks_print(stacks, stdout);
