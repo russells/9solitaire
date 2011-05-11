@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <assert.h>
 #include <time.h>
+#include <sys/time.h>
 
 #include "9solitaire.h"
 
@@ -455,22 +456,19 @@ int main(int argc, char **argv)
 {
 	struct Pack *pack;
 	struct Stacks *stacks;
+	struct timeval tv;
+	unsigned int seed;
 
-	srandom((unsigned int)(time(0))); /* This doesn't have to be
-					     cryptographically strong. */
+	gettimeofday(&tv, 0);
+	seed = (unsigned int)(tv.tv_sec * tv.tv_usec);
+	srandom(seed); /* This doesn't have to be cryptographically strong. */
+
 	pack = make_pack(TRUE, FALSE);
-	//pack_print(pack, 0);
-	//printf("\n");
 	pack_shuffle(pack);
 	pack_print(pack, 0);
 	printf("\n");
 	stacks = make_stacks();
-	//stacks_print(stacks, stdout);
-	//printf("\n");
-	//printf("dealing\n");
 	play(pack, stacks);
-	//pack_print(pack, 0);
-	//printf("\n");
 	if (pack_size(pack) == 0) {
 		printf("Finished\n");
 	}
