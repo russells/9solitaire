@@ -381,16 +381,18 @@ static char matchcardfaces[][2] = {
 
 
 
-int play1(struct Pack *pack, struct Stacks *stacks)
+int play1(struct Pack *pack, struct Stacks *stacks, int do_jqk)
 {
 	int jqk;
 	int i;
 	char cardface1, cardface2;
 	int index1, index2;
 
-	jqk = play1_jqk(pack, stacks);
-	if (3 == jqk) {
-		return 3;
+	if (do_jqk) {
+		jqk = play1_jqk(pack, stacks);
+		if (3 == jqk) {
+			return 3;
+		}
 	}
 	i = 0;
 	for (i=0; matchcardfaces[i][0]; i++) {
@@ -435,7 +437,7 @@ void play(struct Pack *pack, struct Stacks *stacks)
 	while (1) {
 		stacks_print(stacks, 0);
 		printf("\n");
-		covered = play1(pack, stacks);
+		covered = play1(pack, stacks, jqk_covered < 3);
 		if (! covered) {
 			break;
 		}
@@ -457,18 +459,18 @@ int main(int argc, char **argv)
 	srandom((unsigned int)(time(0))); /* This doesn't have to be
 					     cryptographically strong. */
 	pack = make_pack(TRUE, FALSE);
-	pack_print(pack, 0);
-	printf("\n");
+	//pack_print(pack, 0);
+	//printf("\n");
 	pack_shuffle(pack);
 	pack_print(pack, 0);
 	printf("\n");
 	stacks = make_stacks();
-	stacks_print(stacks, stdout);
-	printf("\n");
-	printf("dealing\n");
+	//stacks_print(stacks, stdout);
+	//printf("\n");
+	//printf("dealing\n");
 	play(pack, stacks);
-	pack_print(pack, 0);
-	printf("\n");
+	//pack_print(pack, 0);
+	//printf("\n");
 	if (pack_size(pack) == 0) {
 		printf("Finished\n");
 	}
