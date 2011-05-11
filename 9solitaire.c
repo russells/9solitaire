@@ -72,6 +72,7 @@ struct Stack *make_stack(void)
 {
 	struct Stack *stack = xmalloc(sizeof(struct Stack));
 	stack->size = 0;
+	stack->maxsize = PACK_SIZE;
 	return stack;
 }
 
@@ -214,6 +215,7 @@ void stack_print(struct Stack *stack, FILE *file)
 
 void stack_put(struct Stack *stack, struct Card card)
 {
+	assert( stack->size < (stack->maxsize - 1) );
 	stack->cards[stack->size++] = card;
 }
 

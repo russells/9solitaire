@@ -52,6 +52,7 @@ struct Pack {
 
 struct Stack {
 	int size;
+	int maxsize;
 	struct Card cards[PACK_SIZE];
 };
 
