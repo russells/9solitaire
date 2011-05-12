@@ -452,14 +452,38 @@ void play(struct Pack *pack, struct Stacks *stacks)
 }
 
 
+void restore_pack(struct Pack *pack, struct Stacks *stacks)
+{
+	int i, j;
+	struct Stack *stack;
+	struct Card card;
+
+	for (i=8; i>=0; i--) {
+		stack = stacks->stacks[i];
+		for (j=0; j<stack->size; j++) {
+			card = stack->cards[i];
+			pack_put_bottom(pack, card);
+		}
+		stack->size = 0;
+	}
+	assert( pack_size(pack) == 52 );
+}
+
+
 int main(int argc, char **argv)
 {
 	struct Pack *pack;
 	struct Stacks *stacks;
+	int ngames = 1;
+	int gamecounter;
 	struct timeval tv;
 	unsigned int seed;
 	int i;
 	int stacks_total;
+
+	if (argc > 1) {
+		ngames = atoi(argv[1]);
+	}
 
 	gettimeofday(&tv, 0);
 	seed = (unsigned int)(tv.tv_sec * tv.tv_usec);
@@ -467,19 +491,29 @@ int main(int argc, char **argv)
 
 	pack = make_pack(TRUE, FALSE);
 	pack_shuffle(pack);
-	pack_print(pack, 0);
-	printf("\n");
 	stacks = make_stacks();
-	play(pack, stacks);
-	stacks_total = 0;
-	for (i=0 ; i<9; i++) {
-		stacks_total += stacks->stacks[i]->size;
+	for (gamecounter=0; gamecounter<ngames; gamecounter++) {
+		pack_print(pack, 0);
+		printf("\n");
+		play(pack, stacks);
+		stacks_total = 0;
+		for (i=0 ; i<9; i++) {
+			stacks_total += stacks->stacks[i]->size;
+		}
+		assert( pack_size(pack) + stacks_total == 52 );
+		if (ngames > 1) {
+			printf("End %d --", gamecounter);
+		} else {
+			printf("End --");
+		}
+		if (pack_size(pack) == 0) {
+			printf(" Finished!");
+		}
+		printf("\n");
+		restore_pack(pack, stacks);
+		printf("After restore_pack():\n");
+		pack_print(pack, 0);
+		printf("\n");
 	}
-	assert( pack_size(pack) + stacks_total == 52 );
-	printf("End --");
-	if (pack_size(pack) == 0) {
-		printf(" Finished!");
-	}
-	printf("\n");
 	return 0;
 }
