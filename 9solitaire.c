@@ -44,8 +44,8 @@ static struct Pack *make_pack(int initpack, int includejokers)
 
 	pack = xmalloc(sizeof(struct Pack));
 	pack->size = PACK_SIZE;
-	pack->top = 0;
-	pack->bottom = 0;
+	pack->top = 10;
+	pack->bottom = 10;
 	if (initpack) {
 		int facecounter;
 		int suitcounter;
