@@ -458,6 +458,8 @@ int main(int argc, char **argv)
 	struct Stacks *stacks;
 	struct timeval tv;
 	unsigned int seed;
+	int i;
+	int stacks_total;
 
 	gettimeofday(&tv, 0);
 	seed = (unsigned int)(tv.tv_sec * tv.tv_usec);
@@ -469,8 +471,15 @@ int main(int argc, char **argv)
 	printf("\n");
 	stacks = make_stacks();
 	play(pack, stacks);
-	if (pack_size(pack) == 0) {
-		printf("Finished\n");
+	stacks_total = 0;
+	for (i=0 ; i<9; i++) {
+		stacks_total += stacks->stacks[i]->size;
 	}
+	assert( pack_size(pack) + stacks_total == 52 );
+	printf("End --");
+	if (pack_size(pack) == 0) {
+		printf(" Finished!");
+	}
+	printf("\n");
 	return 0;
 }
