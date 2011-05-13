@@ -145,6 +145,10 @@ void pack_put_top(struct Pack *pack, struct Card card)
 }
 
 
+/**
+ * Add a card to the bottom of the pack.  Useful for putting the stacks back
+ * onto the pack after a game.
+ */
 void pack_put_bottom(struct Pack *pack, struct Card card)
 {
 	assert( pack_size(pack) < pack->size-1 );
@@ -156,6 +160,9 @@ void pack_put_bottom(struct Pack *pack, struct Card card)
 }
 
 
+/**
+ * Copy the nth card from the pack.  Does not remove anything from the pack.
+ */
 struct Card pack_copy_card(struct Pack *pack, int n)
 {
 	int i;
@@ -168,6 +175,12 @@ struct Card pack_copy_card(struct Pack *pack, int n)
 }
 
 
+/**
+ * Print a pack.
+ *
+ * @param pack the pack of cards to print
+ * @param file print the pack on this FILE.  If null, use stdout.
+ */
 void pack_print(struct Pack *pack, FILE *file)
 {
 	int i;
@@ -224,6 +237,9 @@ void stack_print(struct Stack *stack, FILE *file)
 }
 
 
+/**
+ * Add a card to the bottom of the pack.
+ */
 void stack_put(struct Stack *stack, struct Card card)
 {
 	assert( stack->size < (stack->maxsize - 1) );
