@@ -156,21 +156,31 @@ void pack_put_bottom(struct Pack *pack, struct Card card)
 }
 
 
+struct Card pack_copy_card(struct Pack *pack, int n)
+{
+	int i;
+
+	assert( pack_size(pack) );
+	assert( n <= pack_size(pack) );
+	i = pack->top + n;
+	i %= pack->size;
+	return pack->cards[i];
+}
+
+
 void pack_print(struct Pack *pack, FILE *file)
 {
 	int i;
+	struct Card card;
 
 	if (file == NULL) {
 		file = stdout;
 	}
 
 	fprintf(file, "<<");
-	for (i=pack->top; i != pack->bottom; i++) {
-		if (i >= pack->size) {
-			i = 0;
-		}
-		struct Card card = pack->cards[i];
-		if (i == pack->top) {
+	for (i=0; i < pack_size(pack); i++) {
+		card = pack_copy_card(pack, i);
+		if (i == 0) {
 			fprintf(file, "%c%c", card.face, card.suit);
 		} else {
 			fprintf(file, " %c%c", card.face, card.suit);
@@ -355,13 +365,12 @@ int play1_jqk(struct Pack *pack, struct Stacks *stacks)
 		struct Card jcard = stack_copy_top(stacks->stacks[j]);
 		struct Card qcard = stack_copy_top(stacks->stacks[q]);
 		struct Card kcard = stack_copy_top(stacks->stacks[k]);
-		fprintf(stderr,
-			"I need 3 cards to cover %c%c, %c%c, %c%c, "
-			"but there are only %d\n",
-			jcard.face, jcard.suit,
-			qcard.face, qcard.suit,
-			kcard.face, kcard.suit,
-			pack_size(pack));
+		printf("I need 3 cards to cover %c%c, %c%c, %c%c, "
+		       "but there are only %d\n",
+		       jcard.face, jcard.suit,
+		       qcard.face, qcard.suit,
+		       kcard.face, kcard.suit,
+		       pack_size(pack));
 		return 0;
 	}
 	stack_put(stacks->stacks[j], pack_get_top(pack));
@@ -412,12 +421,11 @@ int play1(struct Pack *pack, struct Stacks *stacks, int do_jqk)
 			struct Card card2;
 			card1 = stack_copy_top(stacks->stacks[index1]);
 			card2 = stack_copy_top(stacks->stacks[index2]);
-			fprintf(stderr,
-				"I need 2 cards to cover %c%c, %c%c, "
-				"but there are only %d\n",
-				card1.face, card1.suit,
-				card2.face, card2.suit,
-				pack_size(pack));
+			printf("I need 2 cards to cover %c%c, %c%c, "
+			       "but there are only %d\n",
+			       card1.face, card1.suit,
+			       card2.face, card2.suit,
+			       pack_size(pack));
 			return 0;
 		}
 		stack_put(stacks->stacks[index1], pack_get_top(pack));
@@ -461,7 +469,7 @@ void restore_pack(struct Pack *pack, struct Stacks *stacks)
 	for (i=8; i>=0; i--) {
 		stack = stacks->stacks[i];
 		for (j=0; j<stack->size; j++) {
-			card = stack->cards[i];
+			card = stack->cards[j];
 			pack_put_bottom(pack, card);
 		}
 		stack->size = 0;
@@ -511,9 +519,6 @@ int main(int argc, char **argv)
 		}
 		printf("\n");
 		restore_pack(pack, stacks);
-		printf("After restore_pack():\n");
-		pack_print(pack, 0);
-		printf("\n");
 	}
 	return 0;
 }
