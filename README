@@ -1,1 +1,46 @@
 Play the 3x3 solitaire game automatically.
+
+Currently plays the game automatically on a terminal.  The stacks are
+presented across the screen rather than in a 3x3 grid - this does not
+affect the game play at all.
+
+The rules:
+
+- Lay out nine cards.
+
+- For each cards in the "pairs" Ace and 10, 2 and 9, 3 and 8, 4 and 7, 5
+  and 6, place a new card on each of the members of the pair.  (These
+  "pairs" add up to 11.)
+
+- For the triples Jack, Queen, King, place a new card on each of those.
+
+- Continue until all the cards are laid on the table in nine stacks.
+
+- If the game cannot be completed, pick up the stacks beginning at the top
+  left, putting each stack in turn at the bottom of the pack, and start
+  dealing again.  (Currently both versions of the game get this slightly
+  wrong, starting at the bottom left.)
+
+Nuances:
+
+- You should only cover the Jack, Queen, King triples three times.
+
+- At the end of a correctly completed game, you should end up with one
+  Jack, Queen, King triple, and three other "pairs".  If this is not the
+  case you have done something wrong - covering up Jack, Queen, King four
+  times is the most common mistake.
+
+Playing automatically:
+
+- ./9solitaire.py is the python version.
+
+- ./9solitaire is the C version.  Compile 9solitaire.c and 9solitaire.h
+  with make.
+
+- Either version will play a single game with a randomly generated pack if
+  invoked without arguments.
+
+- If given a single integer argument, they will play that many games, using
+  one randomly generated pack.
+
+- The C version is about 60 times faster than the python version.
