@@ -1,6 +1,7 @@
 From: Russell Steicke <russells@adelie.cx>
-Subject: Write a C version of this.
+Subject: Add a C version of 9solitaire.
 
-Speed.
+The C version is about 60 times faster than the python version,
+without attempting to optimise it.
 
 Signed-off-by: Russell Steicke <russells@adelie.cx>
