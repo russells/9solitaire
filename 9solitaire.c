@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <time.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <regex.h>
 
 #include "9solitaire.h"
 
@@ -501,6 +503,50 @@ static void usage(char *name)
 }
 
 
+#define C "\\s*([A23456789XJQK][CDHS])"
+#define PACK_RE "<*"		  \
+	C C C C C C C C C C C C C \
+	C C C C C C C C C C C C C \
+	C C C C C C C C C C C C C \
+	C C C C C C C C C C C C C \
+	"\\s*>*"
+
+
+/**
+ * Given a string describing a pack, fill in the pack.
+ */
+void make_pack_from_string(struct Pack *pack, const char *str)
+{
+	regex_t reg;
+	regmatch_t matches[53];
+	int ret;
+	int i;
+	struct Card card;
+
+	assert( pack_size(pack) == 0 );
+	ret = regcomp(&reg, PACK_RE, REG_EXTENDED);
+	if (ret) {
+		char errbuf[100];
+		regerror(ret, &reg, errbuf, 99);
+		fprintf(stderr, "Could not compile regex %s: %s\n",
+			PACK_RE, errbuf);
+		exit(2);
+	}
+	ret = regexec(&reg, str, 53, matches, 0);
+	if (ret) {
+		fprintf(stderr, "Not a pack string: %s\n", str);
+		exit(2);
+	}
+	/* The first match (matches[0]) is the whole regex. */
+	for (i=1; i<=52; i++) {
+		card.face = str[matches[i].rm_so    ];
+		card.suit = str[matches[i].rm_so + 1];
+		pack_put_bottom(pack, card);
+	}
+	assert( pack_size(pack) == 52 );
+}
+
+
 int main(int argc, char **argv)
 {
 	struct Pack *pack;
@@ -535,6 +581,15 @@ int main(int argc, char **argv)
 	srandom(seed); /* This doesn't have to be cryptographically strong. */
 
 	pack = make_pack(TRUE, FALSE);
+	/*
+	pack = make_pack(FALSE, FALSE);
+	make_pack_from_string(pack,
+			      "<<XH JD 5H AH 7H 8C XS 5D 8D 4S 4D QS KH "
+			      "  AS 4H 6S JH 3H 6C KS QD JC 7C 2S 8H KD "
+			      "  7D AD 3C QC 7S KC 5S 3D 6H XC 8S 4C 9C "
+			      "  2D QH AC 9S 9D 6D 5C XD JS 3S 2H 2C 9H>>");
+	*/
+
 	pack_shuffle(pack);
 	stacks = make_stacks();
 	for (gamecounter=0; gamecounter<ngames; gamecounter++) {
