@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
-
 from random import randint
 import re
 import sys
 from math import log10
+
+try:
+    import psyco
+    psyco.full()
+except ImportError:
+    pass
 
 
 class Card:
