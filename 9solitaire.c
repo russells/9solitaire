@@ -6,6 +6,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <regex.h>
+#include <getopt.h>
 
 #include "9solitaire.h"
 
@@ -498,7 +499,7 @@ void restore_pack(struct Pack *pack, struct Stacks *stacks)
 
 static void usage(char *name)
 {
-	fprintf(stderr, "Usage: %s [ngames]\n", name);
+	fprintf(stderr, "Usage: %s [-n ngames]\n", name);
 	exit(1);
 }
 
@@ -557,23 +558,23 @@ int main(int argc, char **argv)
 	unsigned int seed;
 	int i;
 	int stacks_total;
+	int opt;
+	char *endptr;
 
-	if (argc == 1) {
-		ngames = 1;
-	} else if (argc == 2) {
-		char *endptr;
-		if (! *argv[1]) {
+	while ((opt = getopt(argc, argv, "n:")) != -1) {
+		switch (opt) {
+		case 'n':
+			ngames = (int)strtol(optarg, &endptr, 10);
+			if (*endptr) {
+				usage(argv[0]);
+			}
+			if (ngames <= 0) {
+				usage(argv[0]);
+			}
+			break;
+		default:
 			usage(argv[0]);
 		}
-		ngames = (int) strtol(argv[1], &endptr, 10);
-		if (*endptr) {
-			usage(argv[0]);
-		}
-		if (ngames <= 0) {
-			usage(argv[0]);
-		}
-	} else {
-		usage(argv[0]);
 	}
 
 	gettimeofday(&tv, 0);
