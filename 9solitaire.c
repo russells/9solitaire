@@ -580,6 +580,9 @@ int main(int argc, char **argv)
 			usage(argv[0]);
 		}
 	}
+	if (argv[optind]) {
+		usage(argv[0]);
+	}
 
 	gettimeofday(&tv, 0);
 	seed = (unsigned int)(tv.tv_sec * tv.tv_usec);
