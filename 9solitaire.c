@@ -18,6 +18,7 @@
 #define TRUE 1
 #endif
 
+int flag_shuffle = FALSE;
 
 #define CLUBS    'C'
 #define DIAMONDS 'D'
@@ -499,7 +500,7 @@ void restore_pack(struct Pack *pack, struct Stacks *stacks)
 
 static void usage(char *name)
 {
-	fprintf(stderr, "Usage: %s [-n ngames]\n", name);
+	fprintf(stderr, "Usage: %s [-s] [-n ngames]\n", name);
 	exit(1);
 }
 
@@ -561,7 +562,7 @@ int main(int argc, char **argv)
 	int opt;
 	char *endptr;
 
-	while ((opt = getopt(argc, argv, "n:")) != -1) {
+	while ((opt = getopt(argc, argv, "n:s")) != -1) {
 		switch (opt) {
 		case 'n':
 			ngames = (int)strtol(optarg, &endptr, 10);
@@ -571,6 +572,9 @@ int main(int argc, char **argv)
 			if (ngames <= 0) {
 				usage(argv[0]);
 			}
+			break;
+		case 's':
+			flag_shuffle = TRUE;
 			break;
 		default:
 			usage(argv[0]);
@@ -612,6 +616,9 @@ int main(int argc, char **argv)
 		}
 		printf("\n");
 		restore_pack(pack, stacks);
+		if (flag_shuffle) {
+			pack_shuffle(pack);
+		}
 	}
 	return 0;
 }
