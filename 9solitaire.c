@@ -221,6 +221,7 @@ void stacks_print(struct Stacks *stacks, FILE *file)
 		}
 		stack_print(stack, file);
 	}
+	printf("\n");
 }
 
 
@@ -463,13 +464,13 @@ void play(struct Pack *pack, struct Stacks *stacks)
 	int jqk_covered = 0;
 
 	deal(pack, stacks);
+	stacks_print(stacks, 0);
 	while (1) {
-		stacks_print(stacks, 0);
-		printf("\n");
 		covered = play1(pack, stacks, jqk_covered < 3);
 		if (! covered) {
-			break;
+			return;
 		}
+		stacks_print(stacks, 0);
 		if (3 == covered) {
 			jqk_covered ++;
 		}
