@@ -499,10 +499,17 @@ void restore_pack(struct Pack *pack, struct Stacks *stacks)
 }
 
 
-static void usage(char *name)
+static void usage(char *name, int ret)
 {
-	fprintf(stderr, "Usage: %s [-s] [-n ngames]\n", name);
-	exit(1);
+	FILE *f;
+	if (ret == 0)
+		f = stdout;
+	else
+		f = stderr;
+	fprintf(f, "Usage: %s [-s] [-n ngames]\n", name);
+	fprintf(f, "          (-s to sort the pack between games)\n");
+	fprintf(f, "       %s -h  for help\n", name);
+	exit(ret);
 }
 
 
@@ -563,26 +570,29 @@ int main(int argc, char **argv)
 	int opt;
 	char *endptr;
 
-	while ((opt = getopt(argc, argv, "n:s")) != -1) {
+	while ((opt = getopt(argc, argv, "hn:s")) != -1) {
 		switch (opt) {
+		case 'h':
+			usage(argv[0], 0); /* Does not return. */
+			break;
 		case 'n':
 			ngames = (int)strtol(optarg, &endptr, 10);
 			if (*endptr) {
-				usage(argv[0]);
+				usage(argv[0], 1);
 			}
 			if (ngames <= 0) {
-				usage(argv[0]);
+				usage(argv[0], 1);
 			}
 			break;
 		case 's':
 			flag_shuffle = TRUE;
 			break;
 		default:
-			usage(argv[0]);
+			usage(argv[0], 1);
 		}
 	}
 	if (argv[optind]) {
-		usage(argv[0]);
+		usage(argv[0], 1);
 	}
 
 	gettimeofday(&tv, 0);
