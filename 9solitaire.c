@@ -487,7 +487,7 @@ void restore_pack(struct Pack *pack, struct Stacks *stacks)
 	struct Stack *stack;
 	struct Card card;
 
-	for (i=8; i>=0; i--) {
+	for (i=0; i<9; i++) {
 		stack = stacks->stacks[i];
 		for (j=0; j<stack->size; j++) {
 			card = stack->cards[j];
