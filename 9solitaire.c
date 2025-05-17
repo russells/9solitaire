@@ -506,7 +506,7 @@ static void usage(char *name, int ret)
 		f = stdout;
 	else
 		f = stderr;
-	fprintf(f, "Usage: %s [-s] [-n ngames]\n", name);
+	fprintf(f, "Usage: %s [-s] [-n ngames] [-p pack]\n", name);
 	fprintf(f, "          (-s to sort the pack between games)\n");
 	fprintf(f, "       %s -h  for help\n", name);
 	exit(ret);
@@ -559,8 +559,9 @@ void make_pack_from_string(struct Pack *pack, const char *str)
 
 int main(int argc, char **argv)
 {
-	struct Pack *pack;
-	struct Stacks *stacks;
+	struct Pack *pack = 0;
+	struct Stacks *stacks = 0;
+	const char * packstring = 0;
 	int ngames = 1;
 	int gamecounter;
 	struct timeval tv;
@@ -570,7 +571,7 @@ int main(int argc, char **argv)
 	int opt;
 	char *endptr;
 
-	while ((opt = getopt(argc, argv, "hn:s")) != -1) {
+	while ((opt = getopt(argc, argv, "hn:p:s")) != -1) {
 		switch (opt) {
 		case 'h':
 			usage(argv[0], 0); /* Does not return. */
@@ -583,6 +584,9 @@ int main(int argc, char **argv)
 			if (ngames <= 0) {
 				usage(argv[0], 1);
 			}
+			break;
+		case 'p':
+			packstring = optarg;
 			break;
 		case 's':
 			flag_shuffle = TRUE;
@@ -599,7 +603,13 @@ int main(int argc, char **argv)
 	seed = (unsigned int)(tv.tv_sec * tv.tv_usec);
 	srandom(seed); /* This doesn't have to be cryptographically strong. */
 
-	pack = make_pack(TRUE, FALSE);
+	if (packstring) {
+		pack = make_pack(FALSE, FALSE);
+		make_pack_from_string(pack, packstring);
+	} else {
+		pack = make_pack(TRUE, FALSE);
+		pack_shuffle(pack);
+	}
 	/*
 	pack = make_pack(FALSE, FALSE);
 	make_pack_from_string(pack,
@@ -609,7 +619,6 @@ int main(int argc, char **argv)
 			      "  2D QH AC 9S 9D 6D 5C XD JS 3S 2H 2C 9H>>");
 	*/
 
-	pack_shuffle(pack);
 	stacks = make_stacks();
 	for (gamecounter=0; gamecounter<ngames; gamecounter++) {
 		pack_print(pack, 0);
@@ -634,5 +643,7 @@ int main(int argc, char **argv)
 			pack_shuffle(pack);
 		}
 	}
+	pack_print(pack, 0);
+	printf("\n");
 	return 0;
 }
